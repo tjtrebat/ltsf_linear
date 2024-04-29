@@ -2,6 +2,7 @@ import pandas as pd
 from torch.utils.data import Dataset
 from sklearn.preprocessing import StandardScaler
 
+
 class ApplianceEnergyUsageDataset(Dataset):
     def __init__(self, energy_data, sequence_length, prediction_length):
         super().__init__()
@@ -35,7 +36,8 @@ def get_train_dataset(sequence_length, prediction_length):
     return dataset
 
 def get_test_dataset(sequence_length, prediction_length):
-    test_data = scaler.transform(energy_data.iloc[training_samples - sequence_length:].values)
+    test_data = scaler.transform(energy_data.iloc[
+        training_samples - sequence_length:].values)
     dataset = ApplianceEnergyUsageDataset(test_data,
                                           sequence_length,
                                           prediction_length)
