@@ -20,7 +20,25 @@ test_dataloader = DataLoader(test_dataset, batch_size=BATCH_SIZE)
 
 model = LinearLTSF(SEQUENCE_LENGTH, PREDICTION_LENGTH).to(device)
 
-for batch, (X, y) in enumerate(train_dataloader):
-    X, y = X.to(torch.float32), y.to(torch.float32)
-    y_hat = model(X.to(device))
-    
+criterion = nn.MSELoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+
+def train():
+    size = len(train_dataloader.dataset)
+    model.train()
+    for batch, (X, y) in enumerate(train_dataloader):
+        X, y = X.to(torch.float32), y.to(torch.float32)
+        pred = model(X.to(device))
+        loss = criterion(pred, y)
+        loss.backward()
+        optimizer.step()
+        optimizer.zero_grad()
+        if batch % 100 == 0:
+            loss, current = loss.item(), (batch + 1) * len(X)
+            print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+
+epochs = 10
+for epoch in range(epochs):
+    print(f'Epoch {epoch+1}\n-------------------------------')
+    train()
+print('Done!')
