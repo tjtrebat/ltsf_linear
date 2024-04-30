@@ -9,9 +9,8 @@ from dataset import get_train_dataset, get_test_dataset
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 def train(dataloader, model, criterion, optimizer):
-    size = len(dataloader.dataset)
     model.train()
-    for batch, (X, y) in enumerate(train_dataloader):
+    for X, y in dataloader:
         X, y = [_.to(torch.float32).to(device) for _ in (X, y,)]
         pred = model(X)
         loss = criterion(pred, y)
