@@ -3,15 +3,18 @@ import torch.nn as nn
 
 
 class LinearLTSF(nn.Module):
-    def __init__(self, sequence_length, prediction_length):
+    def __init__(self, sequence_length, prediction_length, in_channels=2):
         super(LinearLTSF, self).__init__()
         self.sequence_length = sequence_length
         self.prediction_length = prediction_length
-        self.appliances_pred = nn.Linear(sequence_length, prediction_length)
-        self.lights_pred = nn.Linear(sequence_length, prediction_length)
+        self.linears = nn.ModuleList([
+            nn.Linear(sequence_length, prediction_length)
+            for _ in range(in_channels)
+        ])
 
     def forward(self, x):
-        appliances_out = self.appliances_pred(x[:, :, 0])
-        lights_out = self.lights_pred(x[:, :, 1])
-        out = torch.cat([appliances_out, lights_out], dim=-1)
+        out = torch.tensor([], dtype=x.dtype, device=x.device)
+        for channel, linear in enumerate(self.linears):
+            channel_out = linear(x[:, :, channel]).unsqueeze(-1)
+            out = torch.cat([out, channel_out], dim=-1)
         return out
